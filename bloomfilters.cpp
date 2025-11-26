@@ -11,18 +11,31 @@
 // *** GLOBAL CONSTANTS ***
 const unsigned int k = 2; // Number of hash functions
 const unsigned long int N = std::pow(10, 9); // Universe size
+const unsigned int n = 5000; // Number of items in S to represent, i.e. |S|
 const unsigned int m = std::pow(10, 4); // Hash table size
 const unsigned int p = std::pow(2, 31) - 1; // Some prime p : p >= N
 const std::vector<int> seeds = {38423, 43971}; // k fixed seeds
+std::vector<int> a(k), b(k);
 
 // *** SUBROUTINES ***
-// Make random hash functions
+
 void makehash1(std::vector<int> &a, std::vector<int> &b);
 void part1();
-
-// Hash functions
-std::vector<int> hash1(const int &x, const std::vector<int> &a, const std::vector<int> &b);
+void part2();
+std::vector<int> hash1(const int &x);
 std::vector<int> hash2(const int &x);
+
+// *** CLASSES ***
+class BloomFilters {
+    public:
+        BloomFilters();
+        void Add(const int &x);
+        bool Contains(const int &x) const;
+    private:
+        bool useHash1 = true;
+        std::vector<int> T;
+
+};
 
 int main(int argc, char* argv[]) {
 
@@ -76,7 +89,6 @@ void part1() {
     assert(m < N);
     assert(p >= N);
 
-    std::vector<int> a(k), b(k);
     makehash1(a, b);
 
     // Set up input data file ifstream
@@ -95,27 +107,31 @@ void part1() {
     // Run hash1
     int x;
     std::ofstream outFile;
-    outFile.open("results1.txt");
+    outFile.open("results1.csv");
     while (inFile >> x) {
-        for (auto h: hash1(x, a, b)) {
-            outFile << h << " ";
+        std::vector<int> hashes = hash1(x);
+        for (int i = 0; i < k; ++i) {
+            if (i == k - 1) outFile << hashes[i];
+            else outFile << hashes[i] << ", ";
         }
         outFile << std::endl;
     }
-    std::cout << "Successfully hashed " << datafile << " to indices in results1.txt" << std::endl;
+    std::cout << "Successfully hashed " << datafile << " to indices in results1.csv" << std::endl;
     inFile.close();
     outFile.close();
 
     // Run hash2;
     inFile.open(datafile);
-    outFile.open("results2.txt");
+    outFile.open("results2.csv");
     while (inFile >> x) {
-        for (auto h: hash2(x)) {
-            outFile << h << " ";
+        std::vector<int> hashes = hash2(x);
+        for (int i = 0; i < k; ++i) {
+            if (i == k - 1) outFile << hashes[i];
+            else outFile << hashes[i] << ", ";
         }
         outFile << std::endl;
     }
-    std::cout << "Successfully hashed " << datafile << " to indices in results2.txt" << std::endl;
+    std::cout << "Successfully hashed " << datafile << " to indices in results2.csv" << std::endl;
     inFile.close();
     outFile.close();
 }
@@ -125,7 +141,16 @@ void part1() {
 
 
 
-std::vector<int> hash1(const int &x, const std::vector<int> &a, const std::vector<int> &b) {
+void part2() {
+    
+}
+
+
+
+
+
+
+std::vector<int> hash1(const int &x) {
     std::vector<int> hashes(k);
     for (int i = 0; i < k; ++i) {
         hashes[i] = ( (a.at(i) * x + b.at(i)) % p ) % m;
@@ -146,4 +171,39 @@ std::vector<int> hash2(const int &x) {
         hashes[i] = dist(randgen);
     }
     return hashes;
+}
+
+
+
+
+
+
+BloomFilters::BloomFilters() {
+    T.resize(m);
+    T = {0};
+}
+
+
+
+
+
+
+void BloomFilters::Add(const int &x) {
+    std::vector<int> hashes = useHash1 ? hash1(x) : hash2(x);
+    for (int h : hashes) {
+        T[h] = 1;
+    }
+}
+
+
+
+
+
+
+bool BloomFilters::Contains(const int &x) const {
+    std::vector<int> hashes = useHash1 ? hash1(x) : hash2(x);
+    for (int h : hashes) {
+        if (T[h] == 0) return false;
+    }
+    return true;
 }

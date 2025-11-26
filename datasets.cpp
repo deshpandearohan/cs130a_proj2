@@ -6,7 +6,7 @@
 using namespace std;
 
 const unsigned int N = pow(10, 9);
-const unsigned int DATA_SIZE = pow(10, 4);
+const unsigned int DATA_SIZE = 500;
 
 int main() {
 
@@ -15,21 +15,23 @@ int main() {
     ofstream outFile;
     outFile.open("uniform.txt");
     for (int i = 0; i < DATA_SIZE; i++) {
-        outFile << rand() % N + 1 << " ";
+        outFile << rand() % N + 1 << endl;
     }
     outFile.close();
 
     // 2. Sequential
     outFile.open("sequential.txt");
     for (int i = 0; i < DATA_SIZE; i++) {
-        outFile << i << " ";
+        outFile << i << endl;
     }
     outFile.close();
 
     // 3. Sequential even numbers
     outFile.open("sequentialEven.txt");
     for (int i = 0; i < DATA_SIZE; i++) {
-        outFile << i * 2 << " ";
+        outFile << i * 2 << endl;
     }
     outFile.close();
+
+    return 0;
 }
