@@ -6,7 +6,7 @@
 using namespace std;
 
 const unsigned int N = pow(10, 9);
-const unsigned int DATA_SIZE = 500;
+const unsigned int DATA_SIZE = 10000;
 
 int main() {
 
